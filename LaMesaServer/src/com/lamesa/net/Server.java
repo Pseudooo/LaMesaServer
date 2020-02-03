@@ -1,4 +1,4 @@
-package com.lamesa;
+package com.lamesa.net;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -6,11 +6,6 @@ import java.util.Hashtable;
 import java.util.UUID;
 
 public class Server {
-	
-	// Handle entry point of the application
-	public static void main(String[] args) {
-		// TODO Instantiate server
-	}
 
 	private final int port;
 	
