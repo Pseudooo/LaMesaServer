@@ -1,5 +1,6 @@
 package com.lamesa.net;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
@@ -8,6 +9,7 @@ import java.util.UUID;
 public class Server {
 
 	private final int port;
+	private final Hashtable<UUID, ClientHandler> sessions = new Hashtable<UUID, ClientHandler>();
 	
 	/**
 	 * Instantiate a new server instance
@@ -32,6 +34,9 @@ public class Server {
 				Socket s = ss.accept();
 				
 				// TODO Handle connection
+				ClientHandler ct = new ClientHandler(UUID.randomUUID(), this, s);
+				this.sessions.put(ct.getUUID(), ct);
+				ct.start();
 				
 			}
 			
@@ -42,6 +47,16 @@ public class Server {
 		
 	}
 	
-	
+	/**
+	 * Terminate an ongoing session
+	 * @param id of session
+	 */
+	public void terminateSession(UUID id) throws IOException {
+		if(!this.sessions.containsKey(id))
+			return;
+		
+		this.sessions.get(id).getSocket().close();
+		this.sessions.remove(id);
+	}
 	
 }
