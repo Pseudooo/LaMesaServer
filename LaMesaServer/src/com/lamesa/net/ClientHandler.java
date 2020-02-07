@@ -1,77 +1,36 @@
 package com.lamesa.net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.UUID;
 
 public class ClientHandler extends Thread {
-
-	private final UUID id;
 	
-	private final Server server;
-	private final Socket socket;
+	private volatile boolean listen = true;
 	
-	private final PrintWriter pw;
-	private final BufferedReader br;
+	private final int port;
 	
-	/**
-	 * Create a new client-thread
-	 * @param id
-	 * @param server
-	 * @param socket
-	 * @throws IOException
-	 */
-	public ClientHandler(UUID id, Server server, Socket socket) throws IOException {
-		
-		this.id = id;
-		this.server = server;
-		this.socket = socket;
-		
-		// TODO: Consider auto-flush=false
-		this.pw = new PrintWriter(this.socket.getOutputStream(), true);
-		this.br = new BufferedReader(
-				new InputStreamReader(this.socket.getInputStream()));
-		
+	public ClientHandler(int port) {
+		this.port = port;
 	}
 	
 	@Override
 	public void run() {
 		
-		// Begin attempting of reading
-		try {
+		try(ServerSocket ss = new ServerSocket(this.port)) {
 			
-			String msg;
-			while(!(msg = br.readLine()).equals("terminate")) {
-				System.out.printf("Recieved: %s%n", msg);
-				System.out.printf("    from - %s%n", this.id.toString());
+			while(listen) {
+				
+				Socket s = ss.accept();
+				
+				// TODO Handle client
+				
 			}
 			
-			// Terminate method closes socket
-			this.server.terminateSession(this.id);
-			
 		}catch(IOException e) {
-			e.printStackTrace();
+			
 		}
 		
-	}
-	
-	/**
-	 * Call for this ClientHandler's UUID
-	 * @return
-	 */
-	public UUID getUUID() {
-		return this.id;
-	}
-	
-	/**
-	 * Call for this ClientHandler's Socket
-	 * @return
-	 */
-	public Socket getSocket() {
-		return this.socket;
 	}
 	
 }

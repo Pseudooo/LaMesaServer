@@ -1,7 +1,5 @@
 package com.lamesa;
 
-import com.lamesa.net.Server;
-
 public class LaMesa {
 
 	public static void main(String[] args) {
@@ -22,9 +20,7 @@ public class LaMesa {
 		
 		// TODO Setup command interface
 		
-		// Create new server instance & listen
-		Server s = new Server(port);
-		s.listen();
+		// TODO Setup listener
 		
 	}
 	
