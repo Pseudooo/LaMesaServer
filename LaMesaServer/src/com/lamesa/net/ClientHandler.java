@@ -45,7 +45,7 @@ public class ClientHandler extends Thread {
 		System.out.println("Public Keys:");
 		System.out.printf("   P - %s%n", TextFormat.formatKey(this.P));
 		System.out.printf("   G - %s%n", TextFormat.formatKey(this.G));
-		System.out.println("Secrey Key:");
+		System.out.println("Secret Key:");
 		System.out.printf("   - %s%n%n", TextFormat.formatKey(this.sec_key));
 		
 		try {

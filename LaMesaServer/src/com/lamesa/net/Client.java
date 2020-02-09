@@ -39,7 +39,7 @@ public class Client extends Thread {
 	@Override
 	public void run() {
 		
-		// TODO Schedule timeout to interrupt `this` thread
+		// TODO Schedule timeout to interrupt `this` thread (timeout)
 		
 		try {
 			performHandshake();
