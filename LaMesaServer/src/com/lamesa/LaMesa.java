@@ -1,5 +1,7 @@
 package com.lamesa;
 
+import com.lamesa.net.ClientHandler;
+
 public class LaMesa {
 
 	public static void main(String[] args) {
@@ -20,7 +22,9 @@ public class LaMesa {
 		
 		// TODO Setup command interface
 		
-		// TODO Setup listener
+		// Setup listener
+		ClientHandler ch = new ClientHandler(port);
+		ch.start();
 		
 	}
 	
