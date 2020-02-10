@@ -26,4 +26,8 @@ public class TextFormat {
 		System.out.printf("[%tT] : %s%n", new Date(), msg);
 	}
 	
+	public static void foutput(String mask, Object... params) {
+		output(String.format(mask, params));
+	}
+	
 }

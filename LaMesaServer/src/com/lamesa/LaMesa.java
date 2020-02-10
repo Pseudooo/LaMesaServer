@@ -1,6 +1,7 @@
 package com.lamesa;
 
 import com.lamesa.net.ClientHandler;
+import com.lamesa.util.TextFormat;
 
 public class LaMesa {
 
@@ -19,6 +20,8 @@ public class LaMesa {
 			System.err.println("Port provided is not a number!");
 			return;
 		}
+		
+		TextFormat.output("Server Starting");
 		
 		// TODO Setup command interface
 		

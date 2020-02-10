@@ -35,29 +35,25 @@ public class ClientHandler extends Thread {
 		SecureRandom sr = new SecureRandom();
 		byte[] buffer = new byte[KEY_SIZE];
 		
-		System.out.println("Initializing...");
-		System.out.println("Generating Keys...");
+		TextFormat.output("Generating Session Keys...");
 		
 		// Take all keys from a securely random pool
 		sr.nextBytes(buffer);
 		this.P = AbsAndPad(buffer);
+		TextFormat.foutput("P = %s", TextFormat.formatKey(this.P));
 		
 		sr.nextBytes(buffer);
 		this.G = AbsAndPad(buffer);
+		TextFormat.foutput("G = %s", TextFormat.formatKey(this.G));
 		
 		sr.nextBytes(buffer);
 		this.sec_key = AbsAndPad(buffer);
-		
-		// Output initialized keys
-		System.out.println("Public Keys:");
-		System.out.printf("   - %s%n", TextFormat.formatKey(this.P));
-		System.out.printf("   - %s%n", TextFormat.formatKey(this.G));
-		System.out.println("Secret Key:");
-		System.out.printf("   - %s%n%n", TextFormat.formatKey(this.sec_key));
+		TextFormat.foutput("S = %s", TextFormat.formatKey(this.sec_key));
 		
 		try {
 			this.md = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
+			TextFormat.output("Failed to collect SHA-256 instance");
 			e.printStackTrace();
 		}
 		
@@ -73,19 +69,20 @@ public class ClientHandler extends Thread {
 		// Attempt to open on socket
 		try(ServerSocket ss = new ServerSocket(this.port)) {
 			
-			System.out.println("Listening...");
+			TextFormat.foutput("Now accepting connections on port %d", this.port);
 			
 			while(this.listen) {
 				
 				Socket s = ss.accept();
 				
-				// Parallise client's execution (avoid blocking listen)
+				// Parallelise client's execution (avoid blocking listen)
 				Client c = new Client(this, s);
-				c.start();
 				
 				// After thread has been started notify console
 				String host = s.getInetAddress().getCanonicalHostName();
-				TextFormat.output(String.format("%s has started connecting", host));
+				TextFormat.foutput("%s has started connecting", host);
+				
+				c.start();
 				
 			}
 			

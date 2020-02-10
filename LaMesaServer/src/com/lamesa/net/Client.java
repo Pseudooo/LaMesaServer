@@ -28,8 +28,6 @@ public class Client extends Thread {
 	private final BufferedReader br;
 	private final PrintWriter pw;
 	
-	private ScheduledFuture<?> future;
-	
 	public Client(ClientHandler handler, Socket s) throws IOException {
 		
 		this.handler = handler;
@@ -45,7 +43,7 @@ public class Client extends Thread {
 	public void run() {
 		
 		// Schedule timeout
-		this.future = this.handler.getSes().schedule(new TimeoutClient(this), 1, TimeUnit.MINUTES);
+		ScheduledFuture<?> future = this.handler.getSes().schedule(new TimeoutClient(this), 1, TimeUnit.MINUTES);
 		boolean success = true;
 		
 		try {
@@ -68,13 +66,12 @@ public class Client extends Thread {
 		}
 		
 		// Cancel timeout
-		this.future.cancel(true);
-		this.future = null;
+		future.cancel(true);
 		
-		if(success) 
+		if(success) {
 			TextFormat.output(
 					String.format("%s has finished connecting", this.s.getInetAddress().getCanonicalHostName()));
-		
+		}
 	}
 	
 	/**
@@ -94,7 +91,7 @@ public class Client extends Thread {
 			throw new HandshakeFailedException("Failed to dispatch public keys");
 		}
 		
-		// Initialize x & y
+		// Initialise x & y
 		// Using copy to pad out 0s and maintain `ks` bits
 		byte[] x = Arrays.copyOf(new BigInteger(this.handler.getG()).modPow(
 				new BigInteger(this.handler.getSecretKey()),
