@@ -9,6 +9,9 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import com.lamesa.net.exceptions.HandshakeFailedException;
@@ -16,7 +19,7 @@ import com.lamesa.util.TextFormat;
 
 public class Client extends Thread {
 	
-	private byte[] key = new byte[32];
+	private byte[] key = new byte[ClientHandler.KEY_SIZE];
 	
 	private final ClientHandler handler;
 	
@@ -24,6 +27,8 @@ public class Client extends Thread {
 	
 	private final BufferedReader br;
 	private final PrintWriter pw;
+	
+	private ScheduledFuture<?> future;
 	
 	public Client(ClientHandler handler, Socket s) throws IOException {
 		
@@ -39,13 +44,36 @@ public class Client extends Thread {
 	@Override
 	public void run() {
 		
-		// TODO Schedule timeout to interrupt `this` thread (timeout)
+		// Schedule timeout
+		this.future = this.handler.getSes().schedule(new TimeoutClient(this), 1, TimeUnit.MINUTES);
+		boolean success = true;
 		
 		try {
+			// Attempt a handshake
 			performHandshake();
 		}catch(HandshakeFailedException e) {
-			// TODO Handle exception
+			
+			// Handshake has failed
+			success = false;
+			TextFormat.output(String.format("%s has failed their handshake", 
+					this.s.getInetAddress().getCanonicalHostName()));
+			TextFormat.output("   ~ "+e.getMessage());
+			
+			try { // Attempt to close the connection
+				this.s.close();
+			}catch(IOException e_) {
+				TextFormat.output("   ~ Failed to close socket");
+			}
+			
 		}
+		
+		// Cancel timeout
+		this.future.cancel(true);
+		this.future = null;
+		
+		if(success) 
+			TextFormat.output(
+					String.format("%s has finished connecting", this.s.getInetAddress().getCanonicalHostName()));
 		
 	}
 	
@@ -56,20 +84,23 @@ public class Client extends Thread {
 	 */
 	private void performHandshake() throws HandshakeFailedException {
 		
+		// Abbreviate
+		final int ks = ClientHandler.KEY_SIZE;
+		
 		try { // Send public keys
 			this.s.getOutputStream().write(this.handler.getP());
 			this.s.getOutputStream().write(this.handler.getG());
 		} catch (IOException e) {
-			throw new HandshakeFailedException("Failed to write public keys");
+			throw new HandshakeFailedException("Failed to dispatch public keys");
 		}
 		
 		// Initialize x & y
-		// Using copy to pad out 0s and maintain 32 bits
+		// Using copy to pad out 0s and maintain `ks` bits
 		byte[] x = Arrays.copyOf(new BigInteger(this.handler.getG()).modPow(
 				new BigInteger(this.handler.getSecretKey()),
-				new BigInteger(this.handler.getP())).toByteArray(), 32);
+				new BigInteger(this.handler.getP())).toByteArray(), ks);
 		
-		byte[] y = new byte[32];
+		byte[] y = new byte[ks];
 		
 		try { // Send x + request y
 			this.s.getOutputStream().write(x);
@@ -80,14 +111,15 @@ public class Client extends Thread {
 		
 		byte[] secret = Arrays.copyOf(new BigInteger(y).modPow(
 				new BigInteger(this.handler.getSecretKey()), 
-				new BigInteger(this.handler.getP())).toByteArray(), 32);
+				new BigInteger(this.handler.getP())).toByteArray(), ks);
 		
+		// Assign key to hash to shared secret
 		this.key = this.handler.digest(secret);
 		
-		// Display connection results
-		TextFormat.output(String.format("%s has established the following key", this.s.getInetAddress().getCanonicalHostName()));
-		TextFormat.output(TextFormat.formatKey(this.key));
-		
+	}
+	
+	protected Socket getSocket() {
+		return this.s;
 	}
 	
 }
