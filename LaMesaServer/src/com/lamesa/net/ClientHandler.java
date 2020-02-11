@@ -8,12 +8,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.lamesa.util.TextFormat;
 
 public class ClientHandler extends Thread {
+	
+	private final Hashtable<UUID, Client> clients = new Hashtable<UUID, Client>();
 	
 	// new global key-size in case changes needed
 	public static final int KEY_SIZE = 32;
@@ -89,6 +93,10 @@ public class ClientHandler extends Thread {
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
+		
+	}
+	
+	public void registerClient(Client c) {
 		
 	}
 	

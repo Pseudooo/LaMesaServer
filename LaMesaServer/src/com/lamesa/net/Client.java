@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +22,8 @@ public class Client extends Thread {
 	
 	private byte[] key = new byte[ClientHandler.KEY_SIZE];
 	
+	private final UUID id;
+	
 	private final ClientHandler handler;
 	
 	private final Socket s;
@@ -28,7 +31,9 @@ public class Client extends Thread {
 	private final BufferedReader br;
 	private final PrintWriter pw;
 	
-	public Client(ClientHandler handler, Socket s) throws IOException {
+	protected Client(ClientHandler handler, Socket s) throws IOException {
+		
+		this.id = UUID.randomUUID();
 		
 		this.handler = handler;
 		
@@ -42,8 +47,16 @@ public class Client extends Thread {
 	@Override
 	public void run() {
 		
+		// Initialise connection
+		init();
+		
+	}
+	
+	private void init() {
+		
 		// Schedule timeout
-		ScheduledFuture<?> future = this.handler.getSes().schedule(new TimeoutClient(this), 1, TimeUnit.MINUTES);
+		ScheduledFuture<?> future = this.handler.getSes().schedule(
+				new TimeoutClient(this), 1, TimeUnit.MINUTES);
 		boolean success = true;
 		
 		try {
@@ -53,8 +66,8 @@ public class Client extends Thread {
 			
 			// Handshake has failed
 			success = false;
-			TextFormat.output(String.format("%s has failed their handshake", 
-					this.s.getInetAddress().getCanonicalHostName()));
+			TextFormat.foutput("%s has failed their handshake", 
+					this.s.getInetAddress().getCanonicalHostName());
 			TextFormat.output("   ~ "+e.getMessage());
 			
 			try { // Attempt to close the connection
@@ -69,9 +82,11 @@ public class Client extends Thread {
 		future.cancel(true);
 		
 		if(success) {
-			TextFormat.output(
-					String.format("%s has finished connecting", this.s.getInetAddress().getCanonicalHostName()));
+			TextFormat.foutput("%s is now connected",
+					this.s.getInetAddress().getCanonicalHostName());
+			this.handler.registerClient(this);
 		}
+		
 	}
 	
 	/**
@@ -113,6 +128,10 @@ public class Client extends Thread {
 		// Assign key to hash to shared secret
 		this.key = this.handler.digest(secret);
 		
+	}
+	
+	public UUID getID() {
+		return this.id;
 	}
 	
 	protected Socket getSocket() {

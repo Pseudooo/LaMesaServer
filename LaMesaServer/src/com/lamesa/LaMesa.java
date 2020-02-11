@@ -4,7 +4,7 @@ import com.lamesa.net.ClientHandler;
 import com.lamesa.util.TextFormat;
 
 public class LaMesa {
-
+	
 	public static void main(String[] args) {
 		
 		// Validate Arguments provided
