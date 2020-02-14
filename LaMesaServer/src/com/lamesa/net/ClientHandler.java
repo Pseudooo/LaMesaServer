@@ -97,7 +97,7 @@ public class ClientHandler extends Thread {
 	}
 	
 	public void registerClient(Client c) {
-		
+		this.clients.put(c.getID(), c);
 	}
 	
 	public byte[] getP() {
