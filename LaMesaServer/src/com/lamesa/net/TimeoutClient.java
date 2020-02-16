@@ -5,9 +5,8 @@ import java.util.concurrent.ScheduledFuture;
 import com.lamesa.util.TextFormat;
 
 class TimeoutClient implements Runnable {
-
+	
 	private final Client c;
-	private ScheduledFuture<?> sf;
 	
 	public TimeoutClient(Client c) {
 		this.c = c;

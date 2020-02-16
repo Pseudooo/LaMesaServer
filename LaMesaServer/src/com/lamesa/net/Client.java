@@ -1,20 +1,12 @@
 package com.lamesa.net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
-
 import com.lamesa.net.exceptions.HandshakeFailedException;
 import com.lamesa.util.TextFormat;
 
@@ -28,9 +20,6 @@ public class Client extends Thread {
 	
 	private final Socket s;
 	
-	private final BufferedReader br;
-	private final PrintWriter pw;
-	
 	protected Client(ClientHandler handler, Socket s) throws IOException {
 		
 		this.id = UUID.randomUUID();
@@ -38,9 +27,6 @@ public class Client extends Thread {
 		this.handler = handler;
 		
 		this.s = s;
-		
-		this.br = new BufferedReader(new InputStreamReader(this.s.getInputStream()));
-		this.pw = new PrintWriter(this.s.getOutputStream());
 		
 	}
 	
