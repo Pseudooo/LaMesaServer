@@ -125,4 +125,12 @@ public class ClientHandler extends Thread {
 		return this.ses;
 	}
 	
+	public void setListen(boolean val) {
+		this.listen = val;
+	}
+	
+	public boolean isListening() {
+		return this.listen;
+	}
+	
 }
