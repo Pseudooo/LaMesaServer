@@ -17,6 +17,23 @@ import com.lamesa.util.TextFormat;
 
 public class ClientHandler extends Thread {
 	
+	public DataGram process(DataGram dg) {
+		DataGram outgoing = null;
+		
+		System.out.println("Processing response!");
+		
+		Object payload = dg.getPayload();
+		if(payload instanceof String) {
+			outgoing = new DataGram(payload, dg.ID());
+		}else {
+			outgoing = new DataGram(new String("empty"), dg.ID());
+		}
+		
+		System.out.printf("Payload %s%n", (String) outgoing.getPayload());
+		
+		return outgoing;
+	}
+	
 	private final Hashtable<UUID, Client> clients = new Hashtable<UUID, Client>();
 	
 	// new global key-size in case changes needed
@@ -84,7 +101,7 @@ public class ClientHandler extends Thread {
 				
 				// After thread has been started notify console
 				String host = s.getInetAddress().getCanonicalHostName();
-				TextFormat.foutput("%s has started connecting", host);
+				TextFormat.foutput("%s :: Connection Initiated", host);
 				
 				c.start();
 				

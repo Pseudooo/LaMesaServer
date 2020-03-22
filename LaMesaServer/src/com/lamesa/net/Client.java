@@ -1,6 +1,11 @@
 package com.lamesa.net;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.Arrays;
@@ -36,6 +41,41 @@ public class Client extends Thread {
 		// Initialise connection
 		init();
 		
+		boolean run = true;
+		while(run) {
+			
+			try {
+				
+				int x = this.s.getInputStream().read();
+				byte[] data = new byte[x];
+				this.s.getInputStream().read(data);
+				
+				ByteArrayInputStream bais = new ByteArrayInputStream(data);
+				ObjectInputStream ois = new ObjectInputStream(bais);
+				
+				DataGram dg = (DataGram) ois.readObject();
+				TextFormat.foutput("Received DataGram :: %s :: %s", this.s.getInetAddress().getCanonicalHostName(), dg.ID().toString());
+				
+				DataGram out = this.handler.process(dg);
+				
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				
+				oos.writeObject(out);
+				oos.flush();
+				
+				// Write response to stream
+				byte[] ret = baos.toByteArray();
+				this.s.getOutputStream().write(ret.length);
+				this.s.getOutputStream().write(ret);
+				
+			}catch(Exception e) {
+				TextFormat.foutput("%s :: Connection Terminated", this.s.getInetAddress().getCanonicalHostName());
+				run = false; // terminate
+			}
+			
+		}
+		
 	}
 	
 	private void init() {
@@ -68,7 +108,7 @@ public class Client extends Thread {
 		future.cancel(true);
 		
 		if(success) {
-			TextFormat.foutput("%s is now connected",
+			TextFormat.foutput("%s :: Connected",
 					this.s.getInetAddress().getCanonicalHostName());
 			this.handler.registerClient(this);
 		}
@@ -122,6 +162,31 @@ public class Client extends Thread {
 	
 	protected Socket getSocket() {
 		return this.s;
+	}
+	
+	private static byte[] intToBytes(int x) {
+		byte[] bytes = new byte[4];
+		
+		for(int i = 3; i >= 0; i--) {
+			bytes[i] = (byte) x;
+			x -= bytes[i];
+			
+			x >>= 8; // Shift
+			
+		}
+		
+		return bytes;
+	}
+	
+	private static int bytesToInt(byte[] bytes) {
+		int x = 0;
+		
+		for(int i = 0; i < 4; i++) {
+			x <<= 8;
+			x += bytes[i];
+		}
+		
+		return x;
 	}
 	
 }

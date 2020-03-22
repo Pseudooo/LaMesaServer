@@ -22,7 +22,7 @@ public class LaMesa {
 			return;
 		}
 		
-		TextFormat.output("Server Starting");
+		TextFormat.output("Server Starting...");
 		
 		// Setup listener
 		ClientHandler ch = new ClientHandler(port);
