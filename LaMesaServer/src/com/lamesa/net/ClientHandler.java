@@ -20,16 +20,16 @@ public class ClientHandler extends Thread {
 	public DataGram process(DataGram dg) {
 		DataGram outgoing = null;
 		
-		System.out.println("Processing response!");
-		
 		Object payload = dg.getPayload();
-		if(payload instanceof String) {
-			outgoing = new DataGram(payload, dg.ID());
-		}else {
-			outgoing = new DataGram(new String("empty"), dg.ID());
-		}
 		
-		System.out.printf("Payload %s%n", (String) outgoing.getPayload());
+		if(payload instanceof String) {
+			
+			String[] data = ((String) payload).split("-");
+			
+			System.out.println("Booking request for " + data[1]);
+			outgoing = new DataGram(new String("ACK_BOOKING : " + data[1]), dg.ID());
+			
+		}
 		
 		return outgoing;
 	}
