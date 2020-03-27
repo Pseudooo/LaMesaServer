@@ -1,6 +1,5 @@
 package com.lamesa;
 
-import com.lamesa.cmd.CommandIF;
 import com.lamesa.net.ClientHandler;
 import com.lamesa.util.TextFormat;
 
@@ -27,10 +26,6 @@ public class LaMesa {
 		// Setup listener
 		ClientHandler ch = new ClientHandler(port);
 		ch.start();
-		
-		// Startup command thread
-		CommandIF cmds = new CommandIF(ch);
-		cmds.start();
 		
 	}
 	

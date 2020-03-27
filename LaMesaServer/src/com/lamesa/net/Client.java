@@ -35,6 +35,9 @@ public class Client extends Thread {
 		
 	}
 	
+	/**
+	 * Runnable for threading of client's own connection
+	 */
 	@Override
 	public void run() {
 		

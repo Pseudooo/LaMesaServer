@@ -17,6 +17,11 @@ import com.lamesa.util.TextFormat;
 
 public class ClientHandler extends Thread {
 	
+	/**
+	 * Process method that'll be passed in-coming DataGrams
+	 * @param dg Received Datagram
+	 * @return DataGram that'll be sent as response
+	 */
 	public DataGram process(DataGram dg) {
 		DataGram outgoing = null;
 		
@@ -50,6 +55,10 @@ public class ClientHandler extends Thread {
 	
 	private MessageDigest md;
 	
+	/**
+	 * Create a new ClientHandler to listen for connections
+	 * @param port Port to listen on
+	 */
 	public ClientHandler(int port) {
 		this.port = port;
 		
@@ -84,6 +93,9 @@ public class ClientHandler extends Thread {
 		return Arrays.copyOf(new BigInteger(buffer).abs().toByteArray(), KEY_SIZE);
 	}
 	
+	/**
+	 * Runnable for threading the client handler
+	 */
 	@Override
 	public void run() {
 		
@@ -113,14 +125,29 @@ public class ClientHandler extends Thread {
 		
 	}
 	
+	
+	/**
+	 * Register a client with the handler to track
+	 * @param c Client to register
+	 */
 	public void registerClient(Client c) {
 		this.clients.put(c.getID(), c);
 	}
 	
+	
+	/**
+	 * Get P - Public key variable
+	 * @return P
+	 */
 	public byte[] getP() {
 		return this.P;
 	}
 	
+	
+	/**
+	 * Get G - Public key variable
+	 * @return G
+	 */
 	public byte[] getG() {
 		return this.G;
 	}
@@ -142,10 +169,19 @@ public class ClientHandler extends Thread {
 		return this.ses;
 	}
 	
+	/**
+	 * Update the "listening" state of the handler
+	 * @param val state
+	 */
 	public void setListen(boolean val) {
 		this.listen = val;
 	}
 	
+	
+	/**
+	 * Determine if the handler is currently listening
+	 * @return state
+	 */
 	public boolean isListening() {
 		return this.listen;
 	}

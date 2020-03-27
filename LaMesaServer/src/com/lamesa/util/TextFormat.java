@@ -22,10 +22,21 @@ public class TextFormat {
 		return sb.toString();
 	}
 	
+	
+	/**
+	 * Print a message with a pre-constructed format
+	 * @param msg Mesage to output
+	 */
 	public static void output(String msg) {
 		System.out.printf("[%tT] : %s%n", new Date(), msg);
 	}
 	
+	
+	/**
+	 * Overload for printf allowing formatting
+	 * @param mask Formatting mask i.e. "%d / %d = %3.4f"
+	 * @param params Params
+	 */
 	public static void foutput(String mask, Object... params) {
 		output(String.format(mask, params));
 	}
